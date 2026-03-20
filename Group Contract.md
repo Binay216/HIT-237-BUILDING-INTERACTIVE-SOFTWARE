@@ -40,7 +40,6 @@ In case of disagreements, the team will first attempt to resolve issues through 
 ## 6. Academic Integrity
 All work submitted will comply with CDU’s academic integrity policies. Any use of AI tools must be reviewed, understood, and agreed upon by all members. No member will submit work that they do not understand. Proper referencing and ethical practices will be followed.
 
-   
 #  Section 2: Provisional Milestones and Checkpoints
  
 ## 1. Milestones
@@ -49,35 +48,24 @@ All work submitted will comply with CDU’s academic integrity policies. Any use
 - Week 7: Develop core functionalities  
 - Week 9: Complete integration and testing  
 - Week 11: Final review and submission preparation  
- 
 ---
- 
 ## 2. Task Breakdown
 - Member 1: Frontend development (UI/UX design, layout)  
 - Member 2: Backend logic and system functionality  
 - Member 3: Testing, debugging, and documentation  
 - Member 4: Integration, deployment, and reporting  
- 
 (All members will support each other where required.)
- 
 ---
- 
 ## 3. Internal Checkpoints
 - Weekly progress meetings  
 - Mid-development review (Week 6–7)  
 - Pre-submission testing and review (Week 10)  
- 
 ---
- 
 ## 4. Integration Points
 All individual components will be merged through GitHub. Integration will occur after major development milestones, followed by system testing to ensure compatibility and performance.
- 
 ---
- 
 ## 5. Continuous Improvement
 This plan is provisional and will be updated as the project progresses. Adjustments will be made based on team performance, challenges, and feedback.
- 
 ---
- 
 #  Agreement
 All team members agree to follow the above terms and commit to contributing actively and professionally throughout the project.
