@@ -1,0 +1,15 @@
+{% extends 'base.html' %}
+
+{% block title %}Create Request{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h2>Submit Repair Request</h2>
+
+    <form method="POST">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit" class="btn">Submit Request</button>
+    </form>
+</div>
+{% endblock %}

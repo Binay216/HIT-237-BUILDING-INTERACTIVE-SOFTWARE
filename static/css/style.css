@@ -1,0 +1,153 @@
+.container {
+    width: 80%;
+    margin: 0 auto;
+    padding: 20px;
+}
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f4f6f8;
+    margin: 0;
+    padding: 0;
+}
+
+header {
+    background-color: #1e3a8a;
+    color: white;
+    padding: 20px;
+}
+
+nav a {
+    color: white;
+    margin-right: 15px;
+    text-decoration: none;
+    font-weight: bold;
+}
+
+nav a:hover {
+    text-decoration: underline;
+}
+
+main {
+    padding: 20px;
+}
+
+h2 {
+    margin-top: 20px;
+}
+
+p {
+    margin-bottom: 15px;
+}
+
+input, textarea, select {
+    width: 300px;
+    padding: 8px;
+    margin-bottom: 10px;
+}
+
+button {
+    background-color: #2563eb;
+    color: white;
+    padding: 10px 14px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+button:hover {
+    background-color: #1d4ed8;
+}
+
+.request-card {
+    background: white;
+    border-radius: 8px;
+    padding: 15px;
+    margin-bottom: 15px;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+}
+
+.btn {
+    display: inline-block;
+    background-color: #2563eb;
+    color: white;
+    padding: 10px 15px;
+    border-radius: 6px;
+    text-decoration: none;
+    margin-top: 10px;
+}
+
+.btn:hover {
+    background-color: #1d4ed8;
+    text-decoration: none;
+}
+
+.btn.secondary {
+    background-color: #6b7280;
+}
+.request-card {
+    background-color: #ffffff;
+    padding: 15px;
+    margin-top: 15px;
+    border-radius: 8px;
+    box-shadow: 0px 2px 6px rgba(0,0,0,0.1);
+}
+
+.request-card h3 {
+    margin-top: 0;
+    color: #2c3e50;
+}
+.badge {
+    display: inline-block;
+    padding: 4px 10px;
+    border-radius: 999px;
+    font-size: 14px;
+    font-weight: bold;
+    color: white;
+}
+
+.priority-low {
+    background-color: #6b7280;
+}
+
+.priority-medium {
+    background-color: #f59e0b;
+}
+
+.priority-high {
+    background-color: #ef4444;
+}
+
+.priority-emergency {
+    background-color: #7f1d1d;
+}
+
+.status-pending {
+    background-color: #f59e0b;
+}
+
+.status-in_review {
+    background-color: #3b82f6;
+}
+
+.status-in_progress {
+    background-color: #8b5cf6;
+}
+
+.status-completed {
+    background-color: #10b981;
+}
+.request-card p {
+    margin: 6px 0;
+}
+
+.request-card {
+    line-height: 1.5;
+}
+.request-card h3 {
+    font-size: 20px;
+    margin-bottom: 10px;
+}
+.request-card:hover {
+    transform: translateY(-2px);
+    transition: 0.2s;
+}

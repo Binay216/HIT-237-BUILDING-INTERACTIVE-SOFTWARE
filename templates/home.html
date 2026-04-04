@@ -1,0 +1,15 @@
+{% extends 'base.html' %}
+
+{% block title %}Home{% endblock %}
+
+{% block content %}
+<h2>Welcome to NT Remote Housing Support</h2>
+
+<p>This system helps tenants report housing repair issues in remote communities.</p>
+
+<a href="{% url 'create_request' %}" class="btn">Create Repair Request</a>
+
+<br><br>
+
+<a href="{% url 'my_requests' %}" class="btn secondary">View Submitted Requests</a>
+{% endblock %}

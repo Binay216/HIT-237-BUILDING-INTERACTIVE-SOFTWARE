@@ -1,0 +1,35 @@
+{% extends 'base.html' %}
+
+{% block title %}Edit Request{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h2>Edit Repair Request</h2>
+
+    <form method="POST">
+        {% csrf_token %}
+
+        <label>Title:</label><br>
+        <input type="text" name="title" value="{{ repair.title }}"><br><br>
+
+        <label>Description:</label><br>
+        <textarea name="description">{{ repair.description }}</textarea><br><br>
+
+        <label>Location:</label><br>
+        <input type="text" name="location" value="{{ repair.location }}"><br><br>
+
+        <label>Issue Type:</label><br>
+        <input type="text" name="issue_type" value="{{ repair.issue_type }}"><br><br>
+
+        <label>Priority:</label><br>
+        <select name="priority">
+            <option value="LOW">Low</option>
+            <option value="MEDIUM">Medium</option>
+            <option value="HIGH">High</option>
+            <option value="EMERGENCY">Emergency</option>
+        </select><br><br>
+
+        <button type="submit" class="btn">Update</button>
+    </form>
+</div>
+{% endblock %}
