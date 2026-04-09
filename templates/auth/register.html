@@ -1,0 +1,30 @@
+{% extends 'base.html' %}
+
+{% block title %}Register — NT Housing Repairs{% endblock %}
+
+{% block content %}
+<div class="form-page">
+    <h2>Register as Tenant</h2>
+    <form method="post" class="form">
+        {% csrf_token %}
+        {% for field in form %}
+            <div class="form-group">
+                <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+                {{ field }}
+                {% if field.errors %}
+                    {% for error in field.errors %}
+                        <span class="field-error">{{ error }}</span>
+                    {% endfor %}
+                {% endif %}
+            </div>
+        {% endfor %}
+        {% if form.non_field_errors %}
+            {% for error in form.non_field_errors %}
+                <div class="alert alert-error">{{ error }}</div>
+            {% endfor %}
+        {% endif %}
+        <button type="submit" class="btn btn-primary">Register</button>
+    </form>
+    <p class="form-footer">Already have an account? <a href="{% url 'login' %}">Login here</a></p>
+</div>
+{% endblock %}

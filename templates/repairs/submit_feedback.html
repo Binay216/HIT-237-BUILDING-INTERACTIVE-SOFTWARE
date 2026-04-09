@@ -1,0 +1,29 @@
+{% extends 'base.html' %}
+
+{% block title %}Leave Feedback — NT Housing Repairs{% endblock %}
+
+{% block content %}
+<div class="form-page">
+    <h2>Rate Your Repair</h2>
+    <p class="form-subtitle">How was the repair for <strong>"{{ repair.title }}"</strong>?</p>
+
+    <form method="post" class="form">
+        {% csrf_token %}
+        <div class="form-group">
+            <label for="id_rating">Rating (1–5)</label>
+            {{ form.rating }}
+            {% if form.rating.errors %}
+                {% for error in form.rating.errors %}
+                    <span class="field-error">{{ error }}</span>
+                {% endfor %}
+            {% endif %}
+        </div>
+        <div class="form-group">
+            <label for="id_comment">Comment (optional)</label>
+            {{ form.comment }}
+        </div>
+        <button type="submit" class="btn btn-primary">Submit Feedback</button>
+        <a href="{% url 'request_detail' repair.pk %}" class="btn btn-secondary">Cancel</a>
+    </form>
+</div>
+{% endblock %}

@@ -1,0 +1,60 @@
+{% extends 'base.html' %}
+{% load repair_tags %}
+
+{% block title %}{{ community.name }} — NT Housing Repairs{% endblock %}
+
+{% block content %}
+<div class="detail-page">
+    <h2>{{ community.name }}</h2>
+
+    <div class="detail-grid">
+        <div class="detail-item">
+            <strong>Region:</strong> {{ community.get_region_display }}
+        </div>
+        <div class="detail-item">
+            <strong>Population:</strong> {{ community.population|default:"Unknown" }}
+        </div>
+        <div class="detail-item">
+            <strong>Total Dwellings:</strong> {{ dwellings|length }}
+        </div>
+        <div class="detail-item">
+            <strong>Total Requests:</strong> {{ total_requests }}
+        </div>
+        <div class="detail-item">
+            <strong>Active Requests:</strong> {{ active_requests }}
+        </div>
+    </div>
+
+    <h3>Dwellings in {{ community.name }}</h3>
+    {% if dwellings %}
+    <table class="data-table">
+        <thead>
+            <tr>
+                <th>Address</th>
+                <th>Type</th>
+                <th>Bedrooms</th>
+                <th>NCC Compliant</th>
+                <th>Active Requests</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for d in dwellings %}
+            <tr>
+                <td><a href="{% url 'dwelling_detail' d.pk %}">{{ d.address }}</a></td>
+                <td>{{ d.get_dwelling_type_display }}</td>
+                <td>{{ d.bedrooms }}</td>
+                <td>{% if d.meets_ncc_standards %}Yes{% else %}No{% endif %}</td>
+                <td>{{ d.num_active_requests }}</td>
+                <td><a href="{% url 'dwelling_detail' d.pk %}">View</a></td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+        <p>No dwellings registered for this community.</p>
+    {% endif %}
+</div>
+
+<a href="{% url 'community_list' %}" class="btn btn-secondary">Back to Communities</a>
+{% endblock %}

@@ -1,32 +1,59 @@
 {% load static %}
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>{% block title %}NT Remote Housing Support Portal{% endblock %}</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}NT Remote Housing Repairs{% endblock %}</title>
     <link rel="stylesheet" href="{% static 'css/style.css' %}">
 </head>
 <body>
-    <header>
-        <h1>NT Remote Housing Support Portal</h1>
-        <nav>
-    <a href="{% url 'home' %}">Home</a> |
-    <a href="{% url 'create_request' %}">Create Request</a> |
-    <a href="{% url 'my_requests' %}">My Requests</a> |
-
-    {% if user.is_authenticated %}
-        <span>Welcome, {{ user.username }}</span> |
-        <a href="{% url 'logout' %}">Logout</a>
-    {% else %}
-        <a href="{% url 'login' %}">Login</a> |
-        <a href="{% url 'register' %}">Register</a>
-    {% endif %}
-</nav>
-        <hr>
-    </header>
+    <nav class="navbar">
+        <div class="nav-container">
+            <a href="{% url 'home' %}" class="nav-brand">NT Housing Repairs</a>
+            <ul class="nav-links">
+                {% if user.is_authenticated %}
+                    <li><a href="{% url 'dashboard' %}">Dashboard</a></li>
+                    <li><a href="{% url 'request_list' %}">Requests</a></li>
+                    {% if user_role == 'tenant' %}
+                        <li><a href="{% url 'request_create' %}">New Request</a></li>
+                    {% endif %}
+                    {% if user_role == 'staff' %}
+                        <li><a href="{% url 'community_list' %}">Communities</a></li>
+                        <li><a href="{% url 'analytics' %}">Analytics</a></li>
+                    {% endif %}
+                    <li>
+                        <a href="{% url 'notification_list' %}">
+                            Notifications{% if unread_notification_count %} <span class="notification-badge">{{ unread_notification_count }}</span>{% endif %}
+                        </a>
+                    </li>
+                    <li><a href="{% url 'profile' %}">Profile</a></li>
+                    <li>
+                        <form method="post" action="{% url 'logout' %}" class="nav-logout-form">
+                            {% csrf_token %}
+                            <button type="submit" class="nav-link-btn">Logout</button>
+                        </form>
+                    </li>
+                {% else %}
+                    <li><a href="{% url 'login' %}">Login</a></li>
+                    <li><a href="{% url 'register' %}">Register</a></li>
+                {% endif %}
+            </ul>
+        </div>
+    </nav>
 
     <main class="container">
-    {% block content %}
-    {% endblock %}
-</main>
+        {% if messages %}
+            {% for message in messages %}
+                <div class="alert alert-{{ message.tags }}">{{ message }}</div>
+            {% endfor %}
+        {% endif %}
+
+        {% block content %}{% endblock %}
+    </main>
+
+    <footer class="footer">
+        <p>NT Remote Housing Repair System &mdash; HIT237 Building Interactive Softwares</p>
+    </footer>
 </body>
 </html>

@@ -1,0 +1,51 @@
+{% extends 'base.html' %}
+
+{% block title %}Communities — NT Housing Repairs{% endblock %}
+
+{% block content %}
+<div class="list-page">
+    <h2>NT Remote Communities</h2>
+
+    {% if communities %}
+    <table class="data-table">
+        <thead>
+            <tr>
+                <th>Community</th>
+                <th>Region</th>
+                <th>Population</th>
+                <th>Dwellings</th>
+                <th>Active Requests</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for community in communities %}
+            <tr>
+                <td><a href="{% url 'community_detail' community.pk %}">{{ community.name }}</a></td>
+                <td>{{ community.get_region_display }}</td>
+                <td>{{ community.population|default:"—" }}</td>
+                <td>{{ community.num_dwellings }}</td>
+                <td>{{ community.num_active_requests }}</td>
+                <td><a href="{% url 'community_detail' community.pk %}">View</a></td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    {% if communities.has_other_pages %}
+    <div class="pagination">
+        {% if communities.has_previous %}
+            <a href="?page={{ communities.previous_page_number }}" class="btn btn-secondary">Previous</a>
+        {% endif %}
+        <span>Page {{ communities.number }} of {{ communities.paginator.num_pages }}</span>
+        {% if communities.has_next %}
+            <a href="?page={{ communities.next_page_number }}" class="btn btn-secondary">Next</a>
+        {% endif %}
+    </div>
+    {% endif %}
+
+    {% else %}
+        <p>No communities registered yet.</p>
+    {% endif %}
+</div>
+{% endblock %}

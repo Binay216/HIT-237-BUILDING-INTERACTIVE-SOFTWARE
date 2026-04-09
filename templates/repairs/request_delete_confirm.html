@@ -1,0 +1,16 @@
+{% extends 'base.html' %}
+
+{% block title %}Delete Request — NT Housing Repairs{% endblock %}
+
+{% block content %}
+<div class="form-page">
+    <h2>Delete Request</h2>
+    <p>Are you sure you want to delete <strong>"{{ repair.title }}"</strong>?</p>
+    <p>This action cannot be undone.</p>
+    <form method="post" class="form">
+        {% csrf_token %}
+        <button type="submit" class="btn btn-danger">Yes, Delete</button>
+        <a href="{% url 'request_detail' repair.pk %}" class="btn btn-secondary">Cancel</a>
+    </form>
+</div>
+{% endblock %}

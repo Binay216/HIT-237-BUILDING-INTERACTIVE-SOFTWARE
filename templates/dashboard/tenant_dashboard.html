@@ -1,0 +1,60 @@
+{% extends 'base.html' %}
+{% load repair_tags %}
+
+{% block title %}Tenant Dashboard — NT Housing Repairs{% endblock %}
+
+{% block content %}
+<div class="dashboard">
+    <h2>Welcome, {{ profile.full_name }}</h2>
+
+    {% if profile.dwelling %}
+        <p class="dwelling-info">
+            Your dwelling: <a href="{% url 'dwelling_detail' profile.dwelling.pk %}">{{ profile.dwelling }}</a>
+        </p>
+    {% endif %}
+
+    <div class="stats-grid">
+        <div class="stat-card">
+            <span class="stat-number">{{ open_count }}</span>
+            <span class="stat-label">Open Requests</span>
+        </div>
+        <div class="stat-card">
+            <span class="stat-number">{{ completed_count }}</span>
+            <span class="stat-label">Completed</span>
+        </div>
+    </div>
+
+    <div class="dashboard-actions">
+        <a href="{% url 'request_create' %}" class="btn btn-primary">Submit New Request</a>
+        <a href="{% url 'request_list' %}" class="btn btn-secondary">View All Requests</a>
+    </div>
+
+    {% if recent_requests %}
+    <h3>Recent Requests</h3>
+    <table class="data-table">
+        <thead>
+            <tr>
+                <th>Title</th>
+                <th>Issue Type</th>
+                <th>Priority</th>
+                <th>Status</th>
+                <th>Submitted</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for req in recent_requests %}
+            <tr>
+                <td><a href="{% url 'request_detail' req.pk %}">{{ req.title }}</a></td>
+                <td>{{ req.get_issue_type_display }}</td>
+                <td><span class="badge {{ req.priority|priority_class }}">{{ req.get_priority_display }}</span></td>
+                <td><span class="badge {{ req.status|status_class }}">{{ req.get_status_display }}</span></td>
+                <td>{{ req.created_at|date:"d M Y" }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+        <p>No repair requests yet. <a href="{% url 'request_create' %}">Submit your first request</a>.</p>
+    {% endif %}
+</div>
+{% endblock %}

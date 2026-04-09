@@ -1,0 +1,139 @@
+{% extends 'base.html' %}
+{% load repair_tags %}
+
+{% block title %}{{ repair.title }} — NT Housing Repairs{% endblock %}
+
+{% block content %}
+<div class="detail-page">
+    <h2>{{ repair.title }}</h2>
+
+    <div class="detail-meta">
+        <span class="badge {{ repair.status|status_class }}">{{ repair.get_status_display }}</span>
+        <span class="badge {{ repair.priority|priority_class }}">{{ repair.get_priority_display }}</span>
+        <span>{{ repair.days_open|days_label }}</span>
+    </div>
+
+    <div class="detail-grid">
+        <div class="detail-item">
+            <strong>Issue Type:</strong> {{ repair.get_issue_type_display }}
+        </div>
+        <div class="detail-item">
+            <strong>Location:</strong> {{ repair.get_location_in_dwelling_display }}
+        </div>
+        <div class="detail-item">
+            <strong>Dwelling:</strong>
+            <a href="{% url 'dwelling_detail' repair.dwelling.pk %}">{{ repair.dwelling }}</a>
+        </div>
+        <div class="detail-item">
+            <strong>Submitted by:</strong> {{ repair.tenant.full_name }}
+        </div>
+        <div class="detail-item">
+            <strong>Submitted:</strong> {{ repair.created_at|date:"d M Y, H:i" }}
+        </div>
+        {% if repair.assigned_to %}
+        <div class="detail-item">
+            <strong>Assigned to:</strong> {{ repair.assigned_to.full_name }}
+        </div>
+        {% endif %}
+        {% if repair.completed_at %}
+        <div class="detail-item">
+            <strong>Completed:</strong> {{ repair.completed_at|date:"d M Y, H:i" }}
+        </div>
+        {% endif %}
+    </div>
+
+    <div class="detail-description">
+        <h3>Description</h3>
+        <p>{{ repair.description|linebreaks }}</p>
+    </div>
+
+    {% if repair.image %}
+    <div class="detail-image">
+        <h3>Attached Image</h3>
+        <img src="{{ repair.image.url }}" alt="Repair image">
+    </div>
+    {% endif %}
+
+    <div class="detail-actions">
+        {% if repair.can_edit and user_role == 'tenant' %}
+            <a href="{% url 'request_edit' repair.pk %}" class="btn btn-secondary">Edit</a>
+            <a href="{% url 'request_delete' repair.pk %}" class="btn btn-danger">Delete</a>
+        {% endif %}
+        {% if repair.is_active and user_role == 'tenant' and repair.tenant == user_profile %}
+            <a href="{% url 'cancel_request' repair.pk %}" class="btn btn-danger">Cancel Request</a>
+        {% endif %}
+        {% if repair.status == 'COMPLETED' and user_role == 'tenant' and repair.tenant == user_profile and not repair.feedback %}
+            <a href="{% url 'submit_feedback' repair.pk %}" class="btn btn-primary">Leave Feedback</a>
+        {% endif %}
+    </div>
+
+    {% if repair.feedback %}
+    <div class="feedback-section">
+        <h3>Tenant Feedback</h3>
+        <div class="feedback-card">
+            <span class="feedback-rating">{{ repair.feedback.rating }}/5</span>
+            {% if repair.feedback.comment %}
+                <p>{{ repair.feedback.comment }}</p>
+            {% endif %}
+            <span class="feedback-date">{{ repair.feedback.created_at|date:"d M Y" }}</span>
+        </div>
+    </div>
+    {% endif %}
+
+    {% if comment_form %}
+    <div class="staff-actions">
+        <h3>Add a Comment</h3>
+        <form method="post" action="{% url 'add_comment' repair.pk %}" class="form">
+            {% csrf_token %}
+            <div class="form-group">
+                <label for="id_comment">Your Comment</label>
+                {{ comment_form.comment }}
+            </div>
+            <button type="submit" class="btn btn-primary">Submit Comment</button>
+        </form>
+    </div>
+    {% endif %}
+
+    {% if status_form and log_form %}
+    <div class="staff-actions">
+        <h3>Update Status</h3>
+        <form method="post" action="{% url 'update_request_status' repair.pk %}" class="form form-inline">
+            {% csrf_token %}
+            <div class="form-group">
+                <label for="id_status">New Status</label>
+                {{ status_form.status }}
+            </div>
+            <div class="form-group">
+                <label for="id_note">Add Note (optional)</label>
+                {{ log_form.note }}
+            </div>
+            <button type="submit" class="btn btn-primary">Update</button>
+        </form>
+    </div>
+    {% endif %}
+
+    <div class="maintenance-log">
+        <h3>Maintenance Log</h3>
+        {% if logs %}
+            {% for log in logs %}
+            <div class="log-entry">
+                <div class="log-header">
+                    <strong>{{ log.author.full_name }}</strong>
+                    <span>{{ log.created_at|date:"d M Y, H:i" }}</span>
+                </div>
+                {% if log.status_change %}
+                    <span class="badge {{ log.status_change|status_class }}">
+                        Status changed to {{ log.get_status_change_display }}
+                    </span>
+                {% endif %}
+                <p>{{ log.note }}</p>
+            </div>
+            {% endfor %}
+        {% else %}
+            <p>No maintenance logs yet.</p>
+        {% endif %}
+    </div>
+</div>
+
+<a href="{% url 'request_list' %}" class="btn btn-secondary">Back to Requests</a>
+{% endblock %}

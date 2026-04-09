@@ -1,0 +1,128 @@
+{% extends 'base.html' %}
+
+{% block title %}Analytics — NT Housing Repairs{% endblock %}
+
+{% block content %}
+<div class="dashboard">
+    <h2>Analytics &amp; Reports</h2>
+
+    <div class="dashboard-actions">
+        <a href="{% url 'export_csv' %}" class="btn btn-primary">Export All as CSV</a>
+    </div>
+
+    <div class="stats-grid">
+        <div class="stat-card">
+            <span class="stat-number">{{ total_requests }}</span>
+            <span class="stat-label">Total Requests</span>
+        </div>
+        <div class="stat-card">
+            <span class="stat-number">{{ pending_count }}</span>
+            <span class="stat-label">Pending</span>
+        </div>
+        <div class="stat-card">
+            <span class="stat-number">{{ in_progress_count }}</span>
+            <span class="stat-label">In Progress</span>
+        </div>
+        <div class="stat-card">
+            <span class="stat-number">{{ completed_count }}</span>
+            <span class="stat-label">Completed</span>
+        </div>
+        <div class="stat-card stat-card-warning">
+            <span class="stat-number">{{ overdue_count }}</span>
+            <span class="stat-label">Overdue (14+ days)</span>
+        </div>
+        <div class="stat-card">
+            <span class="stat-number">{{ avg_completion_days|default:"—" }}</span>
+            <span class="stat-label">Avg Days to Complete</span>
+        </div>
+    </div>
+
+    {% if avg_rating %}
+    <div class="stats-grid">
+        <div class="stat-card">
+            <span class="stat-number">{{ avg_rating|floatformat:1 }}</span>
+            <span class="stat-label">Avg Tenant Rating ({{ total_feedback }} reviews)</span>
+        </div>
+    </div>
+    {% endif %}
+
+    <h3>Requests by Month (Last 6 Months)</h3>
+    {% if monthly_stats %}
+    <table class="data-table">
+        <thead>
+            <tr><th>Month</th><th>Requests</th></tr>
+        </thead>
+        <tbody>
+            {% for stat in monthly_stats %}
+            <tr>
+                <td>{{ stat.month|date:"F Y" }}</td>
+                <td>{{ stat.count }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+        <p>No data for the last 6 months.</p>
+    {% endif %}
+
+    <h3>Requests by Status</h3>
+    <table class="data-table">
+        <thead>
+            <tr><th>Status</th><th>Count</th></tr>
+        </thead>
+        <tbody>
+            {% for stat in stats_by_status %}
+            <tr>
+                <td>{{ stat.status }}</td>
+                <td>{{ stat.count }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <h3>Requests by Issue Type</h3>
+    <table class="data-table">
+        <thead>
+            <tr><th>Issue Type</th><th>Count</th></tr>
+        </thead>
+        <tbody>
+            {% for stat in stats_by_issue %}
+            <tr>
+                <td>{{ stat.issue_type }}</td>
+                <td>{{ stat.count }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <h3>Requests by Priority</h3>
+    <table class="data-table">
+        <thead>
+            <tr><th>Priority</th><th>Count</th></tr>
+        </thead>
+        <tbody>
+            {% for stat in stats_by_priority %}
+            <tr>
+                <td>{{ stat.priority }}</td>
+                <td>{{ stat.count }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <h3>Requests by Community</h3>
+    <table class="data-table">
+        <thead>
+            <tr><th>Community</th><th>Count</th></tr>
+        </thead>
+        <tbody>
+            {% for stat in stats_by_community %}
+            <tr>
+                <td>{{ stat.dwelling__community__name }}</td>
+                <td>{{ stat.count }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

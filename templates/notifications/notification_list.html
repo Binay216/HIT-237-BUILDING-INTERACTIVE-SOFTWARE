@@ -1,0 +1,44 @@
+{% extends 'base.html' %}
+
+{% block title %}Notifications — NT Housing Repairs{% endblock %}
+
+{% block content %}
+<div class="list-page">
+    <h2>Notifications</h2>
+
+    {% if notifications %}
+    <form method="post" action="{% url 'mark_all_notifications_read' %}" class="notification-actions">
+        {% csrf_token %}
+        <button type="submit" class="btn btn-secondary btn-sm">Mark All as Read</button>
+    </form>
+
+    <div class="notification-feed">
+        {% for n in notifications %}
+        <a href="{% url 'mark_notification_read' n.pk %}" class="notification-item {% if not n.is_read %}notification-unread{% endif %}">
+            <div class="notification-header">
+                <strong>{{ n.title }}</strong>
+                <span class="notification-time">{{ n.created_at|date:"d M Y, H:i" }}</span>
+            </div>
+            <p>{{ n.message }}</p>
+            <span class="notification-type">{{ n.get_notification_type_display }}</span>
+        </a>
+        {% endfor %}
+    </div>
+
+    {% if notifications.has_other_pages %}
+    <div class="pagination">
+        {% if notifications.has_previous %}
+            <a href="?page={{ notifications.previous_page_number }}" class="btn btn-secondary">Previous</a>
+        {% endif %}
+        <span>Page {{ notifications.number }} of {{ notifications.paginator.num_pages }}</span>
+        {% if notifications.has_next %}
+            <a href="?page={{ notifications.next_page_number }}" class="btn btn-secondary">Next</a>
+        {% endif %}
+    </div>
+    {% endif %}
+
+    {% else %}
+        <p>No notifications yet.</p>
+    {% endif %}
+</div>
+{% endblock %}

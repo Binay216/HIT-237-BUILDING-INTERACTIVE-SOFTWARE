@@ -1,0 +1,81 @@
+{% extends 'base.html' %}
+{% load repair_tags %}
+
+{% block title %}Repair Requests — NT Housing Repairs{% endblock %}
+
+{% block content %}
+<div class="list-page">
+    <h2>{% if is_staff %}All Repair Requests{% else %}My Repair Requests{% endif %}</h2>
+
+    <form method="get" class="filter-form">
+        <div class="filter-row">
+            <div class="form-group">
+                <label for="id_status">Status</label>
+                {{ filter_form.status }}
+            </div>
+            <div class="form-group">
+                <label for="id_issue_type">Issue Type</label>
+                {{ filter_form.issue_type }}
+            </div>
+            <div class="form-group">
+                <label for="id_priority">Priority</label>
+                {{ filter_form.priority }}
+            </div>
+            <button type="submit" class="btn btn-secondary">Filter</button>
+        </div>
+    </form>
+
+    {% if requests %}
+    <table class="data-table">
+        <thead>
+            <tr>
+                <th>Title</th>
+                {% if is_staff %}<th>Tenant</th>{% endif %}
+                <th>Issue Type</th>
+                <th>Priority</th>
+                <th>Status</th>
+                <th>Date</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for req in requests %}
+            <tr>
+                <td><a href="{% url 'request_detail' req.pk %}">{{ req.title }}</a></td>
+                {% if is_staff %}<td>{{ req.tenant.full_name }}</td>{% endif %}
+                <td>{{ req.get_issue_type_display }}</td>
+                <td><span class="badge {{ req.priority|priority_class }}">{{ req.get_priority_display }}</span></td>
+                <td><span class="badge {{ req.status|status_class }}">{{ req.get_status_display }}</span></td>
+                <td>{{ req.created_at|date:"d M Y" }}</td>
+                <td>
+                    <a href="{% url 'request_detail' req.pk %}">View</a>
+                    {% if req.can_edit and not is_staff %}
+                        | <a href="{% url 'request_edit' req.pk %}">Edit</a>
+                    {% endif %}
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    {% if requests.has_other_pages %}
+    <div class="pagination">
+        {% if requests.has_previous %}
+            <a href="?page={{ requests.previous_page_number }}{% if filter_form.data.status %}&status={{ filter_form.data.status }}{% endif %}{% if filter_form.data.issue_type %}&issue_type={{ filter_form.data.issue_type }}{% endif %}{% if filter_form.data.priority %}&priority={{ filter_form.data.priority }}{% endif %}{% if search_query %}&q={{ search_query }}{% endif %}" class="btn btn-secondary">Previous</a>
+        {% endif %}
+        <span>Page {{ requests.number }} of {{ requests.paginator.num_pages }}</span>
+        {% if requests.has_next %}
+            <a href="?page={{ requests.next_page_number }}{% if filter_form.data.status %}&status={{ filter_form.data.status }}{% endif %}{% if filter_form.data.issue_type %}&issue_type={{ filter_form.data.issue_type }}{% endif %}{% if filter_form.data.priority %}&priority={{ filter_form.data.priority }}{% endif %}{% if search_query %}&q={{ search_query }}{% endif %}" class="btn btn-secondary">Next</a>
+        {% endif %}
+    </div>
+    {% endif %}
+
+    {% else %}
+        <p>No repair requests found.</p>
+    {% endif %}
+
+    {% if not is_staff %}
+        <a href="{% url 'request_create' %}" class="btn btn-primary">Submit New Request</a>
+    {% endif %}
+</div>
+{% endblock %}

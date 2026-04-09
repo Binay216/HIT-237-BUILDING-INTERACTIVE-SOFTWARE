@@ -1,0 +1,93 @@
+{% extends 'base.html' %}
+{% load repair_tags %}
+
+{% block title %}{{ dwelling.address }} — NT Housing Repairs{% endblock %}
+
+{% block content %}
+<div class="detail-page">
+    <h2>Dwelling Details</h2>
+
+    <div class="detail-grid">
+        <div class="detail-item">
+            <strong>Address:</strong> {{ dwelling.address }}
+        </div>
+        <div class="detail-item">
+            <strong>Community:</strong> {{ dwelling.community.name }} ({{ dwelling.community.get_region_display }})
+        </div>
+        <div class="detail-item">
+            <strong>Type:</strong> {{ dwelling.get_dwelling_type_display }}
+        </div>
+        <div class="detail-item">
+            <strong>Bedrooms:</strong> {{ dwelling.bedrooms }}
+        </div>
+        {% if dwelling.year_built %}
+        <div class="detail-item">
+            <strong>Year Built:</strong> {{ dwelling.year_built }}
+        </div>
+        {% endif %}
+        <div class="detail-item">
+            <strong>NCC Compliance:</strong> {{ dwelling.compliance_status }}
+        </div>
+        <div class="detail-item">
+            <strong>Active Repairs:</strong> {{ dwelling.active_repair_count }}
+        </div>
+        <div class="detail-item">
+            <strong>Total Requests:</strong> {{ dwelling.total_requests }}
+        </div>
+    </div>
+
+    {% if active_requests %}
+    <h3>Active Repair Requests</h3>
+    <table class="data-table">
+        <thead>
+            <tr>
+                <th>Title</th>
+                <th>Issue Type</th>
+                <th>Priority</th>
+                <th>Status</th>
+                <th>Submitted</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for req in active_requests %}
+            <tr>
+                <td><a href="{% url 'request_detail' req.pk %}">{{ req.title }}</a></td>
+                <td>{{ req.get_issue_type_display }}</td>
+                <td><span class="badge {{ req.priority|priority_class }}">{{ req.get_priority_display }}</span></td>
+                <td><span class="badge {{ req.status|status_class }}">{{ req.get_status_display }}</span></td>
+                <td>{{ req.created_at|date:"d M Y" }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% endif %}
+
+    {% if maintenance_history %}
+    <h3>Maintenance History (Completed Repairs)</h3>
+    <table class="data-table">
+        <thead>
+            <tr>
+                <th>Title</th>
+                <th>Issue Type</th>
+                <th>Completed</th>
+                <th>Days to Complete</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for req in maintenance_history %}
+            <tr>
+                <td><a href="{% url 'request_detail' req.pk %}">{{ req.title }}</a></td>
+                <td>{{ req.get_issue_type_display }}</td>
+                <td>{{ req.completed_at|date:"d M Y" }}</td>
+                <td>{{ req.days_open }} days</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+        <p>No completed repairs on record.</p>
+    {% endif %}
+</div>
+
+<a href="{% url 'dashboard' %}" class="btn btn-secondary">Back to Dashboard</a>
+{% endblock %}

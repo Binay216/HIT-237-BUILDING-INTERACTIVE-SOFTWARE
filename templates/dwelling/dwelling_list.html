@@ -1,0 +1,68 @@
+{% extends 'base.html' %}
+
+{% block title %}All Dwellings — NT Housing Repairs{% endblock %}
+
+{% block content %}
+<div class="list-page">
+    <h2>All Dwellings</h2>
+
+    <form method="get" class="filter-form">
+        <div class="filter-row">
+            <div class="form-group">
+                <label for="community">Filter by Community</label>
+                <select name="community" id="community">
+                    <option value="">All Communities</option>
+                    {% for c in communities %}
+                        <option value="{{ c.pk }}" {% if selected_community == c.pk|stringformat:"d" %}selected{% endif %}>{{ c.name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <button type="submit" class="btn btn-secondary">Filter</button>
+        </div>
+    </form>
+
+    {% if dwellings %}
+    <table class="data-table">
+        <thead>
+            <tr>
+                <th>Address</th>
+                <th>Community</th>
+                <th>Type</th>
+                <th>Bedrooms</th>
+                <th>NCC Compliant</th>
+                <th>Active Requests</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for d in dwellings %}
+            <tr>
+                <td><a href="{% url 'dwelling_detail' d.pk %}">{{ d.address }}</a></td>
+                <td>{{ d.community.name }}</td>
+                <td>{{ d.get_dwelling_type_display }}</td>
+                <td>{{ d.bedrooms }}</td>
+                <td>{% if d.meets_ncc_standards %}Yes{% else %}No{% endif %}</td>
+                <td>{{ d.num_active_requests }}</td>
+                <td><a href="{% url 'dwelling_detail' d.pk %}">View</a></td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    {% if dwellings.has_other_pages %}
+    <div class="pagination">
+        {% if dwellings.has_previous %}
+            <a href="?page={{ dwellings.previous_page_number }}{% if selected_community %}&community={{ selected_community }}{% endif %}" class="btn btn-secondary">Previous</a>
+        {% endif %}
+        <span>Page {{ dwellings.number }} of {{ dwellings.paginator.num_pages }}</span>
+        {% if dwellings.has_next %}
+            <a href="?page={{ dwellings.next_page_number }}{% if selected_community %}&community={{ selected_community }}{% endif %}" class="btn btn-secondary">Next</a>
+        {% endif %}
+    </div>
+    {% endif %}
+
+    {% else %}
+        <p>No dwellings found.</p>
+    {% endif %}
+</div>
+{% endblock %}

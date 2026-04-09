@@ -1,0 +1,17 @@
+{% extends 'base.html' %}
+
+{% block title %}Cancel Request — NT Housing Repairs{% endblock %}
+
+{% block content %}
+<div class="form-page">
+    <h2>Cancel Request</h2>
+    <p>Are you sure you want to cancel <strong>"{{ repair.title }}"</strong>?</p>
+    <p>Current status: {{ repair.get_status_display }}</p>
+    <p>This will mark the request as cancelled and it cannot be reopened.</p>
+    <form method="post" class="form">
+        {% csrf_token %}
+        <button type="submit" class="btn btn-danger">Yes, Cancel Request</button>
+        <a href="{% url 'request_detail' repair.pk %}" class="btn btn-secondary">Go Back</a>
+    </form>
+</div>
+{% endblock %}

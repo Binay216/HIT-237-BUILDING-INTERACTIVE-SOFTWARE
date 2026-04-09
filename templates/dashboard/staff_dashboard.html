@@ -1,0 +1,117 @@
+{% extends 'base.html' %}
+{% load repair_tags %}
+
+{% block title %}Staff Dashboard — NT Housing Repairs{% endblock %}
+
+{% block content %}
+<div class="dashboard">
+    <h2>Staff Dashboard</h2>
+
+    <div class="stats-grid">
+        <div class="stat-card">
+            <span class="stat-number">{{ pending_count }}</span>
+            <span class="stat-label">Pending</span>
+        </div>
+        <div class="stat-card">
+            <span class="stat-number">{{ in_progress_count }}</span>
+            <span class="stat-label">In Progress</span>
+        </div>
+        <div class="stat-card">
+            <span class="stat-number">{{ completed_count }}</span>
+            <span class="stat-label">Completed</span>
+        </div>
+        <div class="stat-card stat-card-warning">
+            <span class="stat-number">{{ overdue_count }}</span>
+            <span class="stat-label">Overdue (14+ days)</span>
+        </div>
+    </div>
+
+    {% if urgent_requests %}
+    <h3>Emergency Requests</h3>
+    <table class="data-table">
+        <thead>
+            <tr>
+                <th>Title</th>
+                <th>Community</th>
+                <th>Issue Type</th>
+                <th>Status</th>
+                <th>Days Open</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for req in urgent_requests %}
+            <tr>
+                <td><a href="{% url 'request_detail' req.pk %}">{{ req.title }}</a></td>
+                <td>{{ req.dwelling.community.name }}</td>
+                <td>{{ req.get_issue_type_display }}</td>
+                <td><span class="badge {{ req.status|status_class }}">{{ req.get_status_display }}</span></td>
+                <td>{{ req.days_open }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% endif %}
+
+    <h3>Requests by Issue Type</h3>
+    <table class="data-table">
+        <thead>
+            <tr><th>Issue Type</th><th>Count</th></tr>
+        </thead>
+        <tbody>
+            {% for stat in stats_by_issue %}
+            <tr>
+                <td>{{ stat.issue_type }}</td>
+                <td>{{ stat.count }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <h3>Requests by Community</h3>
+    <table class="data-table">
+        <thead>
+            <tr><th>Community</th><th>Count</th></tr>
+        </thead>
+        <tbody>
+            {% for stat in stats_by_community %}
+            <tr>
+                <td>{{ stat.dwelling__community__name }}</td>
+                <td>{{ stat.count }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <h3>Recent Active Requests</h3>
+    <table class="data-table">
+        <thead>
+            <tr>
+                <th>Title</th>
+                <th>Tenant</th>
+                <th>Priority</th>
+                <th>Status</th>
+                <th>Date</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for req in recent_requests %}
+            <tr>
+                <td><a href="{% url 'request_detail' req.pk %}">{{ req.title }}</a></td>
+                <td>{{ req.tenant.full_name }}</td>
+                <td><span class="badge {{ req.priority|priority_class }}">{{ req.get_priority_display }}</span></td>
+                <td><span class="badge {{ req.status|status_class }}">{{ req.get_status_display }}</span></td>
+                <td>{{ req.created_at|date:"d M Y" }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <div class="dashboard-actions">
+        <a href="{% url 'request_list' %}" class="btn btn-primary">View All Requests</a>
+        <a href="{% url 'community_list' %}" class="btn btn-secondary">Browse Communities</a>
+        <a href="{% url 'dwelling_list' %}" class="btn btn-secondary">Browse Dwellings</a>
+        <a href="{% url 'analytics' %}" class="btn btn-secondary">Analytics</a>
+        <a href="{% url 'export_csv' %}" class="btn btn-secondary">Export CSV</a>
+    </div>
+</div>
+{% endblock %}

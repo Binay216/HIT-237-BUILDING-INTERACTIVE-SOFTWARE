@@ -1,15 +1,71 @@
 {% extends 'base.html' %}
 
-{% block title %}Home{% endblock %}
+{% block title %}NT Remote Housing Repairs — Home{% endblock %}
 
 {% block content %}
-<h2>Welcome to NT Remote Housing Support</h2>
+<div class="hero">
+    <h1>Northern Territory Remote Housing Repairs</h1>
+    <p class="hero-subtitle">
+        Empowering tenants in remote communities to report, track, and resolve housing issues.
+    </p>
+    <p class="hero-context">
+        The NT has a public housing waitlist of almost 6,000 people and a homelessness rate
+        12 times the national average. A $4 billion, 10-year housing agreement aims to build
+        2,700 homes across 73 communities and 27 town camps. This system helps tenants log
+        essential repairs — from broken air conditioning to plumbing and structural damage —
+        and track them through to completion.
+    </p>
+    {% if user.is_authenticated %}
+        <div style="margin-top: 24px;">
+            <a href="{% url 'dashboard' %}" class="btn btn-primary">Go to Dashboard</a>
+        </div>
+    {% endif %}
+</div>
 
-<p>This system helps tenants report housing repair issues in remote communities.</p>
+<div class="stats-grid">
+    <div class="stat-card">
+        <span class="stat-number">{{ community_count }}</span>
+        <span class="stat-label">Communities Served</span>
+    </div>
+    <div class="stat-card">
+        <span class="stat-number">{{ dwelling_count }}</span>
+        <span class="stat-label">Dwellings Registered</span>
+    </div>
+    {% if user.is_authenticated %}
+    <div class="stat-card">
+        <span class="stat-number">{{ total_requests }}</span>
+        <span class="stat-label">Total Requests</span>
+    </div>
+    <div class="stat-card">
+        <span class="stat-number">{{ completed_requests }}</span>
+        <span class="stat-label">Repairs Completed</span>
+    </div>
+    {% endif %}
+</div>
 
-<a href="{% url 'create_request' %}" class="btn">Create Repair Request</a>
+{% if not user.is_authenticated %}
+<div class="cta-section">
+    <h2>Get Started</h2>
+    <p>Are you a tenant in a remote NT community? Register to submit repair requests for your dwelling.</p>
+    <div class="cta-buttons">
+        <a href="{% url 'login' %}" class="btn btn-primary">Login</a>
+        <a href="{% url 'register' %}" class="btn btn-secondary">Create Account</a>
+    </div>
+</div>
 
-<br><br>
-
-<a href="{% url 'my_requests' %}" class="btn secondary">View Submitted Requests</a>
+<div class="stats-grid" style="margin-top: 32px;">
+    <div class="card">
+        <h3>Report Issues</h3>
+        <p style="color: var(--gray-600);">Submit repair requests for problems like broken doors, faulty AC, plumbing leaks, electrical faults, and roof damage.</p>
+    </div>
+    <div class="card">
+        <h3>Track Progress</h3>
+        <p style="color: var(--gray-600);">Follow your request from submission through review, repair, and completion. Get updates at every stage.</p>
+    </div>
+    <div class="card">
+        <h3>Maintenance History</h3>
+        <p style="color: var(--gray-600);">View the complete repair history for your dwelling, helping maintain accountability and transparency.</p>
+    </div>
+</div>
+{% endif %}
 {% endblock %}
