@@ -3,11 +3,14 @@
 {% block title %}Page Not Found — NT Housing Repairs{% endblock %}
 
 {% block content %}
+{% load static %}
 <div class="error-container">
     
     <div class="error-left">
         <div class="error-illustration">
-            😕
+            <div class="error-illustration">
+            <img src="{% static 'images/404.png' %}" alt="Error">
+            </div>
         </div>
     </div>
 
