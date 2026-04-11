@@ -856,3 +856,9 @@ h3 { font-size: 1.1rem; margin-bottom: 12px; }
         text-align: center;
     }
 }
+/* image 404.html */
+.error-illustration img {
+    width: 100%;
+    max-width: 400px;
+    border-radius: 12px;
+}
