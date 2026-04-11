@@ -788,3 +788,71 @@ h3 { font-size: 1.1rem; margin-bottom: 12px; }
     color: var(--text-muted);
     margin-bottom: 24px;
 }
+.error-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 60px;
+    min-height: 70vh;
+    padding: 40px;
+    background-color: #f4f6f8;
+}
+
+/* LEFT SIDE */
+.error-left {
+    flex: 1;
+    text-align: center;
+}
+
+.error-illustration {
+    font-size: 120px;
+    background: #e9ecef;
+    padding: 40px;
+    border-radius: 12px;
+    display: inline-block;
+}
+
+/* RIGHT SIDE */
+.error-right {
+    flex: 1;
+}
+
+.error-right h1 {
+    font-size: 36px;
+    margin-bottom: 15px;
+    color: #333;
+}
+
+.error-right p {
+    color: #666;
+    margin-bottom: 25px;
+    line-height: 1.6;
+}
+
+/* BUTTONS */
+.error-buttons {
+    display: flex;
+    gap: 15px;
+}
+
+/* Outline button 404.html css-btnoutline instead of error class */
+.btn-outline {
+    border: 2px solid #007bff;
+    color: #007bff;
+    padding: 10px 15px;
+    border-radius: 8px;
+    text-decoration: none;
+}
+
+.btn-outline:hover {
+    background: #007bff;
+    color: white;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .error-container {
+        flex-direction: column;
+        text-align: center;
+    }
+}
