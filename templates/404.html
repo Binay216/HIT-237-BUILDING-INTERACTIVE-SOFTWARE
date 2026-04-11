@@ -3,10 +3,26 @@
 {% block title %}Page Not Found — NT Housing Repairs{% endblock %}
 
 {% block content %}
-<div class="error-page">
-    <h1>404</h1>
-    <h2>Page Not Found</h2>
-    <p>The page you're looking for doesn't exist or has been moved.</p>
-    <a href="{% url 'home' %}" class="btn btn-primary">Go Home</a>
+<div class="error-container">
+    
+    <div class="error-left">
+        <div class="error-illustration">
+            😕
+        </div>
+    </div>
+
+    <div class="error-right">
+        <h1>Page Not Found</h1>
+        <p>
+            We can’t find the page you’re looking for.<br>
+            It may have been moved, deleted, or never existed.
+        </p>
+
+        <div class="error-buttons">
+            <a href="{% url 'home' %}" class="btn btn-primary">Visit Homepage</a>
+            <a href="{% url 'request_list' %}" class="btn btn-outline">View Requests</a>
+        </div>
+    </div>
+
 </div>
 {% endblock %}
