@@ -1,6 +1,7 @@
 from django.db import models
 from django.contrib.auth.models import User
 from django.core.validators import MinValueValidator, MaxValueValidator
+from django.urls import reverse
 from django.utils import timezone
 from .managers import RepairRequestManager
 
@@ -212,6 +213,9 @@ class RepairRequest(models.Model):
 
     def __str__(self):
         return f"{self.title} [{self.get_status_display()}]"
+
+    def get_absolute_url(self):
+        return reverse('request_detail', kwargs={'pk': self.pk})
 
     # --- Status transition methods (Fat Model pattern) ---
 

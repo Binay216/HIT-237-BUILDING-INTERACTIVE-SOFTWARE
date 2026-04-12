@@ -29,6 +29,7 @@ The team will use Microsoft Teams for meetings and communication, and GitHub for
 
 ---
 
+
 ## 3. Task Ownership
 
 Tasks will be divided based on individual strengths and assigned through mutual agreement. Each member is responsible for completing their assigned tasks on time. If a member is unable to meet deadlines, they must inform the team at least 24 hours in advance. Unreported delays will be documented and may affect individual contribution evaluation. Repeated failure to contribute will be escalated to the lecturer.
@@ -75,22 +76,34 @@ All major work must be reviewed by at least one other team member before final s
 
 ## 1. Milestones
 
+### Assessment 1 Milestones
 * Week 3: Finalise project idea and requirements
 * Week 6: Complete initial system design (UI/UX + architecture)
-* Week 7: Develop core functionalities
-* Week 9: Complete integration and testing
-* Week 11: Final review and submission preparation
+
+### Assessment 2 Milestones (Updated)
+* Week 7: Core models, managers, and signals implemented
+* Week 8: Views developed (FBVs initially), templates and styling complete
+* Week 9: Refactored views to CBVs with custom mixins; test suite written (79 tests)
+* Week 10: ADRs authored and reviewed; supplementary materials created (ERD, class diagrams)
+* Week 11: Final review, viva preparation, and submission
 
 ---
 
 ## 2. Task Breakdown
 
+### Assessment 1 Roles
 * Binay Siwakoti: Backend development and database design
 * Manish Ghimire: Frontend development and UI/UX design
 * Bikesh Shrestha: Testing, debugging, and documentation
 * Hamja Hamja: Integration, deployment, and reporting
 
-(All members will support each other where required.)
+### Assessment 2 Roles (Updated)
+* Binay Siwakoti: Models, managers, signals architecture; ADR authoring (ADR-001, ADR-003, ADR-004, ADR-011)
+* Manish Ghimire: Template system, custom template tags, CSS styling; ADR authoring (ADR-008, ADR-009)
+* Bikesh Shrestha: Test suite (79 tests), middleware, decorators; ADR authoring (ADR-006, ADR-007)
+* Hamja Hamja: CBV refactor, mixins, forms, CSV export; ADR authoring (ADR-002, ADR-005, ADR-010, ADR-012)
+
+(All members reviewed and approved each other's ADR entries and code contributions.)
 
 ---
 
@@ -98,7 +111,9 @@ All major work must be reviewed by at least one other team member before final s
 
 * Weekly progress meetings
 * Mid-development review (Week 6–7)
+* ADR peer review checkpoint (Week 9–10) — each ADR reviewed by at least one non-author
 * Pre-submission testing and review (Week 10)
+* Viva preparation session (Week 11) — all members walk through their ADR entries and code
 
 ---
 
