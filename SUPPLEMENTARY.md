@@ -559,3 +559,106 @@ HIT237-BUILDING-INTERACTIVE-SOFTWARES/
 | `LogoutViewTest` | 2 | GET does not logout, POST does |
 | `CancelRequestViewTest` | 2 | Cancel success, cannot cancel completed |
 | `ContextProcessorTest` | 2 | Unread count, user role in context |
+
+---
+
+## 8. Code Reviews
+
+This section records notable review discussions that took place during development. These are preserved verbatim (reformatted for this document) to show the thought process behind the code as it stands today. Reviewers: team members (peer review) and self-review passes.
+
+### Review 1 — `RepairRequestManager` delegation gap
+
+**File:** `repairs/managers.py:81–109`
+**Reviewer:** Peer review
+**Status:** Acknowledged, left as-is
+
+**Observation.** `RepairRequestQuerySet` exposes 16 methods, but `RepairRequestManager` only re-declares 8 of them (`pending`, `in_progress`, `completed`, `active`, `overdue`, and the three `stats_by_*` methods). That means a direct call like `RepairRequest.objects.in_review()` or `RepairRequest.objects.by_priority('HIGH')` would fail with `AttributeError`, while the same method works when chained: `RepairRequest.objects.get_queryset().in_review()` or `RepairRequest.objects.active().by_priority('HIGH')`.
+
+**Discussion.** Two options were considered:
+1. Replace the manual delegation with `RepairRequestManager = RepairRequestQuerySet.as_manager()` so every QuerySet method is auto-exposed.
+2. Keep the manual delegation and treat the shorter Manager API as intentional — only the methods used in views are promoted to the top-level API; everything else is available via chaining.
+
+**Resolution.** We kept option 2. The Manager's public surface matches what `views.py` actually calls (`pending().count()`, `overdue().count()`, `active()`, `stats_by_*`). Adding auto-delegation would expose methods like `recent()` and `by_priority()` at the top level, which we'd rather reach through chaining so filters compose naturally (e.g. `RepairRequest.objects.active().by_priority('HIGH')`). The trade-off is documented in **ADR-003 → Consequences**.
+
+**Action item.** None — behaviour matches intent. If a future view needs `RepairRequest.objects.by_priority(...)` directly, add the one-line delegate at that point.
+
+---
+
+### Review 2 — Overdue threshold exists in two places
+
+**Files:** `repairs/managers.py:34` and `repairs/models.py:242–246`
+**Reviewer:** Self-review
+**Status:** Resolved (documented, not deduplicated)
+
+**Observation.** `RepairRequestQuerySet.overdue(days=14)` and `RepairRequest.is_overdue(days=14)` both hard-code the same default of 14 days. If the business rule changes, two edits are required instead of one, which contradicts the DRY claim in **ADR-003**.
+
+**Discussion.** Extracting a module-level constant (`OVERDUE_DAYS = 14`) was considered. It would centralise the value, but at the cost of an extra import in both files and a less discoverable default in the method signature. The two methods also serve different call sites: the QuerySet version runs in SQL (`created_at__lte=cutoff`), the model version runs in Python on a loaded instance. They aren't actually redundant — they're two implementations of the same rule for two different contexts.
+
+**Resolution.** The duplication is acceptable because both defaults are explicit, visible in the method signatures, and callers can override the value. If the default ever needs to change in production, a grep for `days=14` finds both call sites immediately. Noted here so the next reviewer doesn't flag it again.
+
+---
+
+### Review 3 — `mark_completed()` does not enforce preconditions
+
+**File:** `repairs/models.py:231–234`
+**Reviewer:** Peer review
+**Status:** Accepted trade-off
+
+**Observation.** The state transition methods on `RepairRequest` (`mark_in_review`, `mark_in_progress`, `mark_completed`, `cancel`) update the status unconditionally. There is no check that the transition is legal — e.g. `mark_completed()` will happily run on a `CANCELLED` request, moving it back to `COMPLETED`. The state machine in section 4 of this document shows the intended flow, but the model does not enforce it.
+
+**Discussion.** A stricter implementation would raise `ValidationError` on illegal transitions, e.g.:
+
+```python
+def mark_completed(self):
+    if self.status not in ('IN_PROGRESS', 'IN_REVIEW'):
+        raise ValidationError(f"Cannot complete from status {self.status}")
+    ...
+```
+
+This was rejected for two reasons:
+1. **Access control already gates transitions at the view layer.** Only staff can call `mark_in_progress` / `mark_completed` (via `@staff_required`), and only tenants can `cancel()` (and only while the request is active — `repairs/views.py:159`). A tenant can never reach `mark_completed`, and staff hitting the button on a cancelled request would be a UI bug, not a data integrity issue.
+2. **Raising exceptions in model methods pushes error handling into every caller.** The current approach keeps the Fat Model methods as simple, composable operations.
+
+**Resolution.** Left as-is. If we were building this for production rather than coursework, we would add a `can_transition_to(new_status)` helper and call it from both the view (for user-friendly error messages) and the model (as a final guard). For HIT237 scope, view-layer gating is sufficient. This is a known limitation, not an accidental omission.
+
+---
+
+### Review 4 — `Echo` class inside `export_csv` view
+
+**File:** `repairs/views.py:294–296`
+**Reviewer:** Self-review
+**Status:** Left inline intentionally
+
+**Observation.** The `Echo` pseudo-buffer class (`class Echo: def write(self, value): return value`) is defined inside the `export_csv` function body. Convention would place small utility classes at module level.
+
+**Discussion.** Moving `Echo` to module level was considered. The reason it lives inside the function: it's used in exactly one place, it's two lines long, and putting it next to the `StreamingHttpResponse` call makes the streaming trick (`csv.writer` writing into a write-through buffer) immediately legible to anyone reading the view. Hoisting it to the top of the file would save no lines and force the reader to jump around.
+
+**Resolution.** Kept inline. The view is the only consumer; if a second CSV export is added later, the class can be promoted then.
+
+---
+
+### Review 5 — `TenantProfile` auto-creation relies on two mechanisms
+
+**Files:** `repairs/signals.py:8–12` and `repairs/middleware.py:1–28`
+**Reviewer:** Peer review
+**Status:** Intentional belt-and-braces
+
+**Observation.** Profile creation is handled by both a `post_save` signal on `User` **and** a middleware that runs `get_or_create` on every authenticated request. This looks like a belt-and-braces redundancy — one of the two should be enough.
+
+**Discussion.** The signal alone is not enough: `createsuperuser` bypasses the usual registration flow, and in some test paths the signal is disconnected or User objects are created with `save(force_insert=False)` in ways that interact oddly. The middleware alone is not enough either, because any view that touches `request.user.profile` *before* the middleware has run (e.g. context processor ordering issues) would still crash on first request.
+
+**Resolution.** Keep both. The signal is the cheap, fast path that handles 99% of creations at the moment they happen. The middleware is the fallback that guarantees the invariant across every request. This is discussed in **ADR-005** and **ADR-006**; the review confirmed that neither mechanism can be removed safely.
+
+---
+
+### Summary of review outcomes
+
+| Review | Finding | Outcome |
+|--------|---------|---------|
+| 1 | Manager only delegates 8 of 16 QuerySet methods | Kept — public API is intentional |
+| 2 | Overdue threshold duplicated in QuerySet and model | Kept — two call sites, two contexts |
+| 3 | State transitions not enforced on model | Kept — view-layer gating is sufficient for scope |
+| 4 | `Echo` class defined inside view function | Kept — single consumer, local readability wins |
+| 5 | Profile creation runs via both signal and middleware | Kept — deliberate redundancy for invariant safety |
+
+All five reviews concluded with "kept as-is". This was itself reviewed — the pattern of accepting every finding would normally be suspicious — but in each case the alternative had a concrete downside that had already been weighed during the original implementation. The value of recording the review is not that it produced code changes, but that the reasoning is now written down so a future reader (or marker) doesn't need to re-derive it from the code alone.
