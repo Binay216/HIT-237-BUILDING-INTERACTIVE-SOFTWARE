@@ -55,3 +55,5 @@ The application allows users to submit repair requests, monitor progress, and ma
 
 Documentation improvements, formatting updates, and clarification of project structure were completed to enhance overall quality and usability.
 
+## Additional Notes
+This project was reviewed and documentation was improved to ensure clarity in setup and structure.
