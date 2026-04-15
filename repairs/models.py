@@ -1,8 +1,9 @@
-from django.db import models
 from django.contrib.auth.models import User
-from django.core.validators import MinValueValidator, MaxValueValidator
+from django.core.validators import MaxValueValidator, MinValueValidator
+from django.db import models
 from django.urls import reverse
 from django.utils import timezone
+
 from .managers import RepairRequestManager
 
 
@@ -71,25 +72,28 @@ class Dwelling(models.Model):
         return f"{self.address}, {self.community.name}"
 
     def active_repair_count(self):
-        """Number of open/active repair requests for this dwelling."""
+        """Number of open or active repair requests for this dwelling."""
         return self.repair_requests.active().count()
 
     def maintenance_history(self):
-        """All completed repair requests for this dwelling, most recent first."""
+        """Return completed repair requests for this dwelling, newest first."""
         return self.repair_requests.completed().order_by('-completed_at')
 
     def is_overcrowded(self, occupant_count):
         """
-        Check if dwelling is overcrowded based on Canadian National
-        Occupancy Standard: more than 2 persons per bedroom.
+        Check whether the dwelling is overcrowded based on the
+        Canadian National Occupancy Standard.
         """
-        return occupant_count > (self.bedrooms * 2)
+        maximum_occupants = self.bedrooms * 2
+        return occupant_count > maximum_occupants
 
     @property
     def compliance_status(self):
-        if self.meets_ncc_standards:
-            return "Compliant with NCC Standards"
-        return "Does NOT meet NCC Standards"
+        return (
+            "Compliant with NCC Standards"
+            if self.meets_ncc_standards
+            else "Does NOT meet NCC Standards"
+        )
 
     @property
     def total_requests(self):
@@ -104,8 +108,11 @@ class TenantProfile(models.Model):
     )
     phone = models.CharField(max_length=20, blank=True)
     dwelling = models.ForeignKey(
-        Dwelling, on_delete=models.SET_NULL,
-        null=True, blank=True, related_name='tenants'
+        Dwelling,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='tenants'
     )
     is_staff_member = models.BooleanField(
         default=False,
@@ -119,12 +126,12 @@ class TenantProfile(models.Model):
 
     @property
     def full_name(self):
-        name = f"{self.user.first_name} {self.user.last_name}".strip()
-        return name if name else self.user.username
+        full_name = f"{self.user.first_name} {self.user.last_name}".strip()
+        return full_name or self.user.username
 
     @property
     def open_requests(self):
-        """Return this tenant's active (non-completed, non-cancelled) requests."""
+        """Return this tenant's active requests."""
         return RepairRequest.objects.filter(tenant=self).active()
 
     @property
@@ -138,8 +145,8 @@ class TenantProfile(models.Model):
 
 class RepairRequest(models.Model):
     """
-    Core model: a housing repair request submitted by a tenant.
-    Business logic lives here (Fat Model pattern).
+    Core model for a housing repair request submitted by a tenant.
+    Business logic is handled within the model.
     """
 
     ISSUE_TYPES = [
@@ -199,8 +206,11 @@ class RepairRequest(models.Model):
     )
     image = models.FileField(upload_to='repairs/%Y/%m/', blank=True, null=True)
     assigned_to = models.ForeignKey(
-        TenantProfile, on_delete=models.SET_NULL,
-        null=True, blank=True, related_name='assigned_requests'
+        TenantProfile,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='assigned_requests'
     )
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
@@ -217,43 +227,45 @@ class RepairRequest(models.Model):
     def get_absolute_url(self):
         return reverse('request_detail', kwargs={'pk': self.pk})
 
-    # --- Status transition methods (Fat Model pattern) ---
-
     def mark_in_review(self):
+        """Move the request to in-review status."""
         self.status = 'IN_REVIEW'
         self.save(update_fields=['status', 'updated_at'])
 
     def mark_in_progress(self, staff_profile):
+        """Assign the request to a staff member and mark it in progress."""
         self.status = 'IN_PROGRESS'
         self.assigned_to = staff_profile
         self.save(update_fields=['status', 'assigned_to', 'updated_at'])
 
     def mark_completed(self):
+        """Mark the request as completed and record the completion time."""
         self.status = 'COMPLETED'
         self.completed_at = timezone.now()
         self.save(update_fields=['status', 'completed_at', 'updated_at'])
 
     def cancel(self):
+        """Cancel the repair request."""
         self.status = 'CANCELLED'
         self.save(update_fields=['status', 'updated_at'])
 
-    # --- Query helper methods ---
-
     def is_overdue(self, days=14):
-        """True if this request has been pending for more than the given days."""
+        """Return True if the request has been pending longer than the limit."""
         if self.status != 'PENDING':
             return False
         return (timezone.now() - self.created_at).days > days
 
     @property
     def days_open(self):
-        """Number of days since the request was created."""
-        end = self.completed_at or timezone.now()
-        return (end - self.created_at).days
+        """Return the number of days the request has been open."""
+        end_time = self.completed_at or timezone.now()
+        duration = end_time - self.created_at
+        return duration.days
 
     @property
     def is_active(self):
-        return self.status not in ['COMPLETED', 'CANCELLED']
+        inactive_statuses = {'COMPLETED', 'CANCELLED'}
+        return self.status not in inactive_statuses
 
     @property
     def can_edit(self):
@@ -262,7 +274,7 @@ class RepairRequest(models.Model):
 
 
 class MaintenanceLog(models.Model):
-    """Tracks updates and notes on a repair request — the history trail."""
+    """Tracks updates and notes on a repair request."""
 
     repair_request = models.ForeignKey(
         RepairRequest, on_delete=models.CASCADE, related_name='logs'
@@ -272,8 +284,10 @@ class MaintenanceLog(models.Model):
     )
     note = models.TextField()
     status_change = models.CharField(
-        max_length=20, choices=RepairRequest.STATUS_CHOICES,
-        blank=True, null=True
+        max_length=20,
+        choices=RepairRequest.STATUS_CHOICES,
+        blank=True,
+        null=True
     )
     created_at = models.DateTimeField(auto_now_add=True)
 
@@ -303,8 +317,11 @@ class Notification(models.Model):
         max_length=20, choices=NOTIFICATION_TYPES, default='SYSTEM'
     )
     related_request = models.ForeignKey(
-        RepairRequest, on_delete=models.SET_NULL,
-        null=True, blank=True, related_name='notifications'
+        RepairRequest,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='notifications'
     )
     is_read = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
@@ -316,6 +333,7 @@ class Notification(models.Model):
         return f"{self.title} → {self.recipient}"
 
     def mark_read(self):
+        """Mark the notification as read."""
         self.is_read = True
         self.save(update_fields=['is_read'])
 
