@@ -19,7 +19,7 @@
 
 ## 1. Group Allocation (Marks Distribution)
 
-All members are expected to contribute fairly and consistently. Marks will be distributed equally only if all members meet agreed contribution standards. Each member must make a minimum of 2–3 meaningful commits per week. Failure to contribute for two consecutive weeks without valid reason will result in escalation to the teaching team, supported by GitHub commit history and communication records.
+We are all aiming for the same goal here, so we expect everyone to chip in fairly and consistently. To make sure marks are split equally, we have agreed on a minimum of 2–3 meaningful updates on GitHub each week. But if someone goes quiet for two weeks straight without checking in, we will have to bring it up with the teaching team using our project history and chat logs to figure out the next steps.
 
 ---
 
